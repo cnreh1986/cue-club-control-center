@@ -80,6 +80,10 @@ const LandingPage = () => {
     { icon: FileText, title: 'Accountants & Auditors' }
   ];
 
+  const handleLogin = () => {
+    navigate('/login');
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
       {/* Header */}
@@ -93,7 +97,7 @@ const LandingPage = () => {
               <span className="text-xl font-bold text-gray-900">SnookerClub Pro</span>
             </div>
             <Button 
-              onClick={() => navigate('/')} 
+              onClick={handleLogin} 
               variant="outline"
               className="border-green-600 text-green-600 hover:bg-green-50"
             >
@@ -117,7 +121,7 @@ const LandingPage = () => {
             <Button 
               size="lg" 
               className="bg-green-600 hover:bg-green-700 text-white px-8"
-              onClick={() => navigate('/')}
+              onClick={handleLogin}
             >
               Get Started Free
               <ArrowRight className="w-5 h-5 ml-2" />
@@ -253,7 +257,7 @@ const LandingPage = () => {
             <Button 
               size="lg" 
               className="bg-white text-green-600 hover:bg-gray-50 px-8"
-              onClick={() => navigate('/')}
+              onClick={handleLogin}
             >
               Start Free Now
               <ArrowRight className="w-5 h-5 ml-2" />

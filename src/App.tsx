@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ClubProvider } from "@/contexts/ClubContext";
 import LandingPage from "./pages/LandingPage";
+import LoginScreen from "./components/LoginScreen";
 import Index from "./pages/Index";
 import OwnerLanding from "./pages/OwnerLanding";
 import CreateClub from "./pages/CreateClub";
@@ -24,6 +25,7 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<LandingPage />} />
+              <Route path="/login" element={<LoginScreen />} />
               <Route path="/app" element={<Index />} />
               <Route path="/owner-dashboard" element={<OwnerLanding />} />
               <Route path="/create-club" element={<CreateClub />} />

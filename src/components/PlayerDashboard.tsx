@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,12 +10,13 @@ const PlayerDashboard = () => {
   const { currentUser } = useAuth();
   const [players] = useLocalStorage('players', []);
   
-  // Find current player data
-  const playerData = players.find((p: any) => p.mobile === currentUser?.mobile) || {
+  // Find current player data using mobile number
+  const playerData = players.find((p: any) => p.mobile === currentUser?.mobile || p.phone === currentUser?.mobile) || {
     name: currentUser?.name || 'Player',
     walletBalance: 0,
     totalPlayed: 0,
-    totalSpent: 0
+    totalSpent: 0,
+    mobile: currentUser?.mobile || ''
   };
 
   const quickActions = [
@@ -45,6 +45,9 @@ const PlayerDashboard = () => {
       <div className="bg-gradient-to-r from-green-600 to-blue-600 rounded-lg p-6 text-white">
         <h2 className="text-2xl font-bold mb-2">Welcome, {playerData.name}!</h2>
         <p className="opacity-90">Your gaming dashboard</p>
+        {playerData.mobile && (
+          <p className="text-sm opacity-75 mt-1">Mobile: {playerData.mobile}</p>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -54,7 +57,7 @@ const PlayerDashboard = () => {
             <Wallet className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-green-900">₹{playerData.walletBalance}</div>
+            <div className="text-3xl font-bold text-green-900">₹{playerData.walletBalance || 0}</div>
             <Badge variant="secondary" className="mt-2">Available</Badge>
           </CardContent>
         </Card>
@@ -65,7 +68,7 @@ const PlayerDashboard = () => {
             <History className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-blue-900">{playerData.totalPlayed}</div>
+            <div className="text-3xl font-bold text-blue-900">{playerData.sessionsCount || 0}</div>
             <p className="text-xs text-blue-600 mt-1">Total sessions</p>
           </CardContent>
         </Card>
@@ -76,7 +79,7 @@ const PlayerDashboard = () => {
             <UtensilsCrossed className="h-4 w-4 text-orange-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-orange-900">₹{playerData.totalSpent}</div>
+            <div className="text-3xl font-bold text-orange-900">₹{playerData.totalSpent || 0}</div>
             <p className="text-xs text-orange-600 mt-1">All time</p>
           </CardContent>
         </Card>

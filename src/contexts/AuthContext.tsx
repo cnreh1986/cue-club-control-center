@@ -35,14 +35,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [users] = useLocalStorage<User[]>('users', [
     { id: '1', name: 'Nadeem (Owner)', role: 'owner', password: 'admin123' },
     { id: '2', name: 'Staff Member', role: 'staff', pin: '1234' },
+    { id: '3', name: 'John Player', role: 'player', mobile: '9876543210', pin: '5678' },
+    { id: '4', name: 'Sarah Player', role: 'player', mobile: '8765432109', pin: '9999' },
   ]);
   const [currentUser, setCurrentUser] = useLocalStorage<User | null>('currentUser', null);
 
   const login = (credentials: { identifier: string; password: string; role: UserRole }): boolean => {
-    const user = users.find(u => 
-      u.role === credentials.role && 
-      (u.password === credentials.password || u.pin === credentials.password || u.mobile === credentials.identifier)
-    );
+    const user = users.find(u => {
+      if (u.role !== credentials.role) return false;
+      
+      // For owner and staff, check password/pin
+      if (u.role === 'owner' && u.password === credentials.password) return true;
+      if (u.role === 'staff' && u.pin === credentials.password) return true;
+      
+      // For players, check mobile number and pin
+      if (u.role === 'player') {
+        return (u.mobile === credentials.identifier || u.name.toLowerCase().includes(credentials.identifier.toLowerCase())) 
+               && u.pin === credentials.password;
+      }
+      
+      return false;
+    });
     
     if (user) {
       setCurrentUser(user);

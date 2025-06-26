@@ -48,7 +48,7 @@ const LoginScreen = () => {
       placeholder: 'Enter mobile/username',
       inputType: 'text',
       color: 'bg-green-600',
-      demo: 'Demo: Coming soon'
+      demo: 'Demo: 9876543210 / PIN: 5678'
     }
   };
 
@@ -86,7 +86,7 @@ const LoginScreen = () => {
               <Label className="text-sm font-medium">{roleConfigs[selectedRole].title}</Label>
               <Input
                 type="text"
-                placeholder="Username/Mobile"
+                placeholder={selectedRole === 'player' ? 'Mobile Number' : 'Username/Mobile'}
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
                 className="mt-1"
@@ -112,9 +112,8 @@ const LoginScreen = () => {
             <Button 
               onClick={handleLogin}
               className={`w-full ${roleConfigs[selectedRole].color}`}
-              disabled={selectedRole === 'player'}
             >
-              {selectedRole === 'player' ? 'Coming Soon' : 'Login'}
+              Login
             </Button>
           </div>
         </CardContent>

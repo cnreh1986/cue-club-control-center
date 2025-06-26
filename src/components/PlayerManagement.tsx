@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,39 +10,61 @@ import { toast } from '@/hooks/use-toast';
 
 const PlayerManagement = () => {
   const [players, setPlayers] = useLocalStorage('players', []);
+  const [users, setUsers] = useLocalStorage('users', [
+    { id: '1', name: 'Nadeem (Owner)', role: 'owner', password: 'admin123' },
+    { id: '2', name: 'Staff Member', role: 'staff', pin: '1234' },
+    { id: '3', name: 'John Player', role: 'player', mobile: '9876543210', pin: '5678' },
+    { id: '4', name: 'Sarah Player', role: 'player', mobile: '8765432109', pin: '9999' },
+  ]);
   const [newPlayer, setNewPlayer] = useState({
     name: '',
     phone: '',
+    pin: '',
     walletBalance: 0,
   });
   const [topUpAmount, setTopUpAmount] = useState('');
   const [selectedPlayer, setSelectedPlayer] = useState(null);
 
   const addPlayer = () => {
-    if (!newPlayer.name || !newPlayer.phone) {
+    if (!newPlayer.name || !newPlayer.phone || !newPlayer.pin) {
       toast({
         title: "Error",
-        description: "Please fill in all required fields",
+        description: "Please fill in all required fields including PIN",
         variant: "destructive",
       });
       return;
     }
 
+    const playerId = Date.now();
     const playerData = {
-      id: Date.now(),
-      ...newPlayer,
+      id: playerId,
+      name: newPlayer.name,
+      phone: newPlayer.phone,
+      mobile: newPlayer.phone, // Ensure consistency
       walletBalance: Number(newPlayer.walletBalance) || 0,
       createdAt: new Date().toISOString(),
       totalSpent: 0,
       sessionsCount: 0,
     };
 
+    // Add to players array
     setPlayers([...players, playerData]);
-    setNewPlayer({ name: '', phone: '', walletBalance: 0 });
+
+    // Add to users array for authentication
+    const userData = {
+      id: playerId.toString(),
+      name: newPlayer.name,
+      role: 'player' as const,
+      mobile: newPlayer.phone,
+      pin: newPlayer.pin,
+    };
+    setUsers([...users, userData]);
+
+    setNewPlayer({ name: '', phone: '', pin: '', walletBalance: 0 });
 
     toast({
       title: "Player Added",
-      description: `${newPlayer.name} has been added successfully`,
+      description: `${newPlayer.name} has been added and can now log in`,
     });
   };
 
@@ -96,12 +117,23 @@ const PlayerManagement = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number *</Label>
+                <Label htmlFor="phone">Mobile Number *</Label>
                 <Input
                   id="phone"
                   value={newPlayer.phone}
                   onChange={(e) => setNewPlayer({...newPlayer, phone: e.target.value})}
-                  placeholder="Enter phone number"
+                  placeholder="Enter mobile number"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="pin">Login PIN *</Label>
+                <Input
+                  id="pin"
+                  type="password"
+                  value={newPlayer.pin}
+                  onChange={(e) => setNewPlayer({...newPlayer, pin: e.target.value})}
+                  placeholder="4-digit PIN for login"
+                  maxLength={4}
                 />
               </div>
               <div className="space-y-2">

@@ -10,15 +10,32 @@ import PlayerManagement from '@/components/PlayerManagement';
 import MenuManagement from '@/components/MenuManagement';
 import PaymentInterface from '@/components/PaymentInterface';
 import ExpenseTracker from '@/components/ExpenseTracker';
+import PlayerDashboard from '@/components/PlayerDashboard';
+import AdminSettings from '@/components/AdminSettings';
+import Reports from '@/components/Reports';
+import Inventory from '@/components/Inventory';
+import LoginScreen from '@/components/LoginScreen';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Index = () => {
+  const { currentUser, isAuthenticated } = useAuth();
   const [activeTab, setActiveTab] = useLocalStorage('activeTab', 'dashboard');
   const [sessions] = useLocalStorage('sessions', []);
   const [players] = useLocalStorage('players', []);
   const [expenses] = useLocalStorage('expenses', []);
 
-  // Calculate today's stats
+  // If not authenticated, show login screen
+  if (!isAuthenticated) {
+    return <LoginScreen />;
+  }
+
+  // For players, show their dashboard by default
+  if (currentUser?.role === 'player' && activeTab === 'dashboard') {
+    setActiveTab('my-wallet');
+  }
+
+  // Calculate stats for owner dashboard
   const today = new Date().toDateString();
   const todaySessions = sessions.filter((session: any) => 
     new Date(session.startTime).toDateString() === today
@@ -159,6 +176,16 @@ const Index = () => {
         return <PaymentInterface />;
       case 'expenses':
         return <ExpenseTracker />;
+      case 'reports':
+        return <Reports />;
+      case 'admin-settings':
+        return <AdminSettings />;
+      case 'inventory':
+        return <Inventory />;
+      case 'my-wallet':
+      case 'play-history':
+      case 'food-orders':
+        return <PlayerDashboard />;
       default:
         return null;
     }

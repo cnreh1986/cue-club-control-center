@@ -59,6 +59,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     if (user) {
       setCurrentUser(user);
+      
+      // Redirect owners to owner dashboard
+      if (user.role === 'owner') {
+        window.location.href = '/owner-dashboard';
+        return true;
+      }
+      
       return true;
     }
     return false;
@@ -66,6 +73,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = () => {
     setCurrentUser(null);
+    window.location.href = '/';
   };
 
   const hasAccess = (module: string): boolean => {

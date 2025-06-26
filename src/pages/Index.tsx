@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -17,17 +16,40 @@ import Inventory from '@/components/Inventory';
 import LoginScreen from '@/components/LoginScreen';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useAuth } from '@/contexts/AuthContext';
+import { useClub } from '@/contexts/ClubContext';
+import { useParams } from 'react-router-dom';
 
 const Index = () => {
   const { currentUser, isAuthenticated } = useAuth();
+  const { clubs, currentClub, setCurrentClub } = useClub();
+  const { clubId } = useParams();
   const [activeTab, setActiveTab] = useLocalStorage('activeTab', 'dashboard');
-  const [sessions] = useLocalStorage('sessions', []);
-  const [players] = useLocalStorage('players', []);
-  const [expenses] = useLocalStorage('expenses', []);
+  
+  // Get club-specific data based on current club
+  const storageKey = currentClub ? `_${currentClub.id}` : '';
+  const [sessions] = useLocalStorage(`sessions${storageKey}`, []);
+  const [players] = useLocalStorage(`players${storageKey}`, []);
+  const [expenses] = useLocalStorage(`expenses${storageKey}`, []);
+
+  // Set current club based on URL parameter
+  useEffect(() => {
+    if (clubId && clubs.length > 0) {
+      const club = clubs.find(c => c.id === clubId);
+      if (club) {
+        setCurrentClub(club);
+      }
+    }
+  }, [clubId, clubs, setCurrentClub]);
 
   // If not authenticated, show login screen
   if (!isAuthenticated) {
     return <LoginScreen />;
+  }
+
+  // For owners without a selected club, redirect to owner dashboard
+  if (currentUser?.role === 'owner' && !currentClub) {
+    window.location.href = '/owner-dashboard';
+    return null;
   }
 
   // For players, show their dashboard by default
@@ -201,7 +223,9 @@ const Index = () => {
                 <span className="text-white font-bold text-sm">CT</span>
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-900">Cui Tip Snooker Club</h1>
+                <h1 className="text-xl font-bold text-gray-900">
+                  {currentClub ? currentClub.name : 'Cui Tip Snooker Club'}
+                </h1>
                 <p className="text-sm text-gray-500">Management System</p>
               </div>
             </div>

@@ -26,8 +26,7 @@ const ClubCreationWizard = ({ onComplete }: ClubCreationWizardProps) => {
     tableCount: 1,
     ratePerHour: 100,
     menu: [] as MenuItem[],
-    staff: [] as StaffMember[],
-    plan: 'basic'
+    staff: [] as StaffMember[]
   });
   
   const { addClub } = useClub();
@@ -37,12 +36,11 @@ const ClubCreationWizard = ({ onComplete }: ClubCreationWizardProps) => {
     { id: 1, title: 'Basic Info', description: 'Club details' },
     { id: 2, title: 'Tables', description: 'Setup tables' },
     { id: 3, title: 'Menu', description: 'Add menu items' },
-    { id: 4, title: 'Staff', description: 'Add staff members' },
-    { id: 5, title: 'Plan', description: 'Select subscription' }
+    { id: 4, title: 'Staff', description: 'Add staff members' }
   ];
 
   const handleNext = () => {
-    if (currentStep < 5) {
+    if (currentStep < 4) {
       setCurrentStep(prev => prev + 1);
     } else {
       handleSubmit();
@@ -70,7 +68,7 @@ const ClubCreationWizard = ({ onComplete }: ClubCreationWizardProps) => {
       },
       menu: clubData.menu,
       staff: clubData.staff,
-      plan: clubData.plan,
+      plan: 'basic',
       ownerId: currentUser?.id || '',
       createdAt: new Date().toISOString()
     };
@@ -273,34 +271,6 @@ const ClubCreationWizard = ({ onComplete }: ClubCreationWizardProps) => {
           </div>
         );
       
-      case 5:
-        return (
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium">Select Plan</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {['basic', 'premium', 'enterprise'].map((plan) => (
-                <Card 
-                  key={plan}
-                  className={`cursor-pointer transition-colors ${
-                    clubData.plan === plan ? 'border-green-500 bg-green-50' : 'hover:bg-gray-50'
-                  }`}
-                  onClick={() => setClubData(prev => ({ ...prev, plan }))}
-                >
-                  <CardHeader>
-                    <CardTitle className="capitalize">{plan}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">
-                      {plan === 'basic' ? '₹999' : plan === 'premium' ? '₹1999' : '₹2999'}
-                    </div>
-                    <p className="text-sm text-gray-600">per month</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        );
-      
       default:
         return null;
     }
@@ -353,8 +323,8 @@ const ClubCreationWizard = ({ onComplete }: ClubCreationWizardProps) => {
             </Button>
             
             <Button onClick={handleNext}>
-              {currentStep === 5 ? 'Create Club' : 'Next'}
-              {currentStep < 5 && <ArrowRight className="w-4 h-4 ml-2" />}
+              {currentStep === 4 ? 'Create Club' : 'Next'}
+              {currentStep < 4 && <ArrowRight className="w-4 h-4 ml-2" />}
             </Button>
           </div>
         </CardContent>

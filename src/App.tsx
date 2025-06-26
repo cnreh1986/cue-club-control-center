@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ClubProvider } from "@/contexts/ClubContext";
+import LandingPage from "./pages/LandingPage";
 import Index from "./pages/Index";
 import OwnerLanding from "./pages/OwnerLanding";
 import CreateClub from "./pages/CreateClub";
@@ -22,7 +23,8 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <Routes>
-              <Route path="/" element={<Index />} />
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/app" element={<Index />} />
               <Route path="/owner-dashboard" element={<OwnerLanding />} />
               <Route path="/create-club" element={<CreateClub />} />
               <Route path="/club/:clubId" element={<Index />} />

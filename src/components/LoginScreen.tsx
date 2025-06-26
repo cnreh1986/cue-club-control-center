@@ -7,12 +7,14 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { useAuth, UserRole } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 const LoginScreen = () => {
   const [selectedRole, setSelectedRole] = useState<UserRole>('staff');
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const { login } = useAuth();
+  const navigate = useNavigate();
 
   const handleLogin = () => {
     if (!identifier || !password) {
@@ -61,6 +63,13 @@ const LoginScreen = () => {
           </div>
           <CardTitle className="text-2xl">Cui Tip Snooker Club</CardTitle>
           <p className="text-gray-600">Management System</p>
+          <Button 
+            variant="ghost" 
+            className="text-sm text-green-600 hover:text-green-700"
+            onClick={() => navigate('/')}
+          >
+            ← Back to Home
+          </Button>
         </CardHeader>
         
         <CardContent className="space-y-6">

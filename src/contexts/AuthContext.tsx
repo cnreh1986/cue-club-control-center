@@ -66,6 +66,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return true;
       }
       
+      // Redirect other users to the app
+      window.location.href = '/app';
       return true;
     }
     return false;

@@ -2,6 +2,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { Button } from '@/components/ui/button';
+import { Home } from 'lucide-react';
 import LoginScreen from '@/components/LoginScreen';
 import ClubCreationWizard from '@/components/ClubCreationWizard';
 
@@ -22,6 +24,10 @@ const CreateClub = () => {
     navigate('/owner-dashboard');
   };
 
+  const handleBackToHome = () => {
+    navigate('/');
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white shadow-sm border-b">
@@ -36,6 +42,16 @@ const CreateClub = () => {
                 <p className="text-sm text-gray-500">Create New Club</p>
               </div>
             </div>
+            
+            <Button
+              onClick={handleBackToHome}
+              variant="outline"
+              size="sm"
+              className="flex items-center space-x-2"
+            >
+              <Home className="h-4 w-4" />
+              <span>Back to Home</span>
+            </Button>
           </div>
         </div>
       </div>

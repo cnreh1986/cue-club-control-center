@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { Club, ClubStats, Table } from '@/types/club';
@@ -7,8 +6,8 @@ import { useAuth } from '@/contexts/AuthContext';
 
 interface ClubContextType {
   clubs: Club[];
-  currentClub: Club | null;
-  setCurrentClub: (club: Club | null) => void;
+  selectedClub: Club | null;
+  setSelectedClub: (club: Club | null) => void;
   addClub: (club: Club) => void;
   updateClub: (clubId: string, updates: Partial<Club>) => void;
   getClubStats: (clubId: string) => ClubStats;
@@ -30,16 +29,16 @@ export const useClub = () => {
 
 export const ClubProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [clubs, setClubs] = useLocalStorage<Club[]>('clubs', []);
-  const [currentClub, setCurrentClub] = useState<Club | null>(null);
+  const [selectedClub, setSelectedClub] = useState<Club | null>(null);
   const { selectedClubId } = useAuth();
 
-  // Update current club when selectedClubId changes
+  // Update selected club when selectedClubId changes
   useEffect(() => {
     if (selectedClubId) {
       const club = clubs.find(c => c.id === selectedClubId);
-      setCurrentClub(club || null);
+      setSelectedClub(club || null);
     } else {
-      setCurrentClub(null);
+      setSelectedClub(null);
     }
   }, [selectedClubId, clubs]);
 
@@ -145,8 +144,8 @@ export const ClubProvider: React.FC<{ children: React.ReactNode }> = ({ children
   return (
     <ClubContext.Provider value={{
       clubs,
-      currentClub,
-      setCurrentClub,
+      selectedClub,
+      setSelectedClub,
       addClub,
       updateClub,
       getClubStats,

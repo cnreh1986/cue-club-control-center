@@ -1,8 +1,10 @@
+
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import LoginScreen from '@/components/LoginScreen';
 import Navigation from '@/components/Navigation';
 import Dashboard from '@/components/Dashboard';
+import Bookings from '@/components/Bookings';
 import Tables from '@/components/Tables';
 import Players from '@/components/Players';
 import Menu from '@/components/Menu';
@@ -34,6 +36,7 @@ const Index = () => {
   const renderTabContent = () => {
     switch (activeTab) {
       case 'dashboard': return <Dashboard />;
+      case 'bookings': return <Bookings />;
       case 'tables': return <Tables />;
       case 'players': return <Players />;
       case 'menu': return <Menu />;

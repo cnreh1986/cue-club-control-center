@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
-import { LogOut } from 'lucide-react';
+import { LogOut, Home } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface NavigationProps {
   activeTab: string;
@@ -13,6 +14,7 @@ interface NavigationProps {
 
 const Navigation = ({ activeTab, setActiveTab }: NavigationProps) => {
   const { currentUser, logout, hasAccess } = useAuth();
+  const navigate = useNavigate();
 
   const allTabs = [
     { id: 'dashboard', label: 'Dashboard', icon: '📊', roles: ['owner'] },
@@ -41,6 +43,10 @@ const Navigation = ({ activeTab, setActiveTab }: NavigationProps) => {
     }
   };
 
+  const handleBackToHome = () => {
+    navigate('/');
+  };
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between p-4 bg-white rounded-lg shadow-sm border">
@@ -53,15 +59,27 @@ const Navigation = ({ activeTab, setActiveTab }: NavigationProps) => {
           </div>
         </div>
         
-        <Button
-          onClick={logout}
-          variant="outline"
-          size="sm"
-          className="flex items-center space-x-2"
-        >
-          <LogOut className="h-4 w-4" />
-          <span>Logout</span>
-        </Button>
+        <div className="flex items-center space-x-2">
+          <Button
+            onClick={handleBackToHome}
+            variant="outline"
+            size="sm"
+            className="flex items-center space-x-2"
+          >
+            <Home className="h-4 w-4" />
+            <span>Back to Home</span>
+          </Button>
+          
+          <Button
+            onClick={logout}
+            variant="outline"
+            size="sm"
+            className="flex items-center space-x-2"
+          >
+            <LogOut className="h-4 w-4" />
+            <span>Logout</span>
+          </Button>
+        </div>
       </div>
 
       <div className="flex flex-wrap gap-2 p-4 bg-white rounded-lg shadow-sm border">

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { useClub } from '@/contexts/ClubContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { Club, MenuItem, StaffMember } from '@/types/club';
+import { Club, MenuItem, StaffMember, Table } from '@/types/club';
 import { toast } from 'sonner';
 import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
 
@@ -54,6 +53,15 @@ const ClubCreationWizard = ({ onComplete }: ClubCreationWizardProps) => {
   };
 
   const handleSubmit = () => {
+    // Create tables array
+    const tables: Table[] = Array.from({ length: clubData.tableCount }, (_, i) => ({
+      id: `table_${i + 1}`,
+      number: i + 1,
+      ratePerHour: clubData.ratePerHour,
+      isActive: true,
+      description: `Table ${i + 1}`
+    }));
+
     const newClub: Club = {
       id: `club_${Date.now()}`,
       name: clubData.name,
@@ -62,15 +70,30 @@ const ClubCreationWizard = ({ onComplete }: ClubCreationWizardProps) => {
         phone: clubData.phone,
         email: clubData.email
       },
-      tables: {
-        count: clubData.tableCount,
-        ratePerHour: clubData.ratePerHour
-      },
+      tables: tables,
       menu: clubData.menu,
       staff: clubData.staff,
       plan: 'basic',
       ownerId: currentUser?.id || '',
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      settings: {
+        bookingSettings: {
+          advanceBookingDays: 30,
+          cancellationPolicy: 'Free cancellation up to 2 hours before booking',
+          requireDeposit: false,
+          depositAmount: 0,
+          allowRecurringBookings: true
+        },
+        operatingHours: {
+          'monday': { isOpen: true, openTime: '09:00', closeTime: '23:00' },
+          'tuesday': { isOpen: true, openTime: '09:00', closeTime: '23:00' },
+          'wednesday': { isOpen: true, openTime: '09:00', closeTime: '23:00' },
+          'thursday': { isOpen: true, openTime: '09:00', closeTime: '23:00' },
+          'friday': { isOpen: true, openTime: '09:00', closeTime: '23:00' },
+          'saturday': { isOpen: true, openTime: '09:00', closeTime: '23:00' },
+          'sunday': { isOpen: true, openTime: '09:00', closeTime: '23:00' }
+        }
+      }
     };
 
     addClub(newClub);
@@ -83,7 +106,9 @@ const ClubCreationWizard = ({ onComplete }: ClubCreationWizardProps) => {
       id: `item_${Date.now()}`,
       name: '',
       price: 0,
-      category: 'food'
+      category: 'food',
+      isAvailable: true,
+      description: ''
     };
     setClubData(prev => ({ ...prev, menu: [...prev.menu, newItem] }));
   };
@@ -94,7 +119,17 @@ const ClubCreationWizard = ({ onComplete }: ClubCreationWizardProps) => {
       name: '',
       role: 'staff',
       pin: '',
-      clubId: ''
+      assignedClubs: [],
+      permissions: {
+        canCreateBookings: true,
+        canCancelBookings: false,
+        canManagePayments: false,
+        canViewReports: false,
+        canManageMenu: false,
+        canManageInventory: false
+      },
+      createdAt: new Date().toISOString(),
+      isActive: true
     };
     setClubData(prev => ({ ...prev, staff: [...prev.staff, newStaff] }));
   };

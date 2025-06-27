@@ -18,6 +18,7 @@ const Navigation = ({ activeTab, setActiveTab }: NavigationProps) => {
 
   const allTabs = [
     { id: 'dashboard', label: 'Dashboard', icon: '📊', roles: ['owner'] },
+    { id: 'bookings', label: 'Bookings', icon: '📅', roles: ['owner', 'staff'] },
     { id: 'tables', label: 'Tables', icon: '🎱', roles: ['owner', 'staff'] },
     { id: 'players', label: 'Players', icon: '👥', roles: ['owner', 'staff'] },
     { id: 'menu', label: 'Menu', icon: '🍽️', roles: ['owner', 'staff'] },
@@ -27,6 +28,7 @@ const Navigation = ({ activeTab, setActiveTab }: NavigationProps) => {
     { id: 'reports', label: 'Reports', icon: '📈', roles: ['owner'] },
     { id: 'admin-settings', label: 'Settings', icon: '⚙️', roles: ['owner'] },
     { id: 'my-wallet', label: 'My Wallet', icon: '💰', roles: ['player'] },
+    { id: 'my-bookings', label: 'My Bookings', icon: '📅', roles: ['player'] },
     { id: 'play-history', label: 'Play History', icon: '🎮', roles: ['player'] },
     { id: 'food-orders', label: 'Food Orders', icon: '🍕', roles: ['player'] },
   ];

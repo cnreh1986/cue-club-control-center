@@ -8,15 +8,21 @@ export interface Club {
     email: string;
   };
   logo?: string;
-  tables: {
-    count: number;
-    ratePerHour: number;
-  };
+  tables: Table[];
   menu: MenuItem[];
   staff: StaffMember[];
   plan: string;
   ownerId: string;
   createdAt: string;
+  settings: ClubSettings;
+}
+
+export interface Table {
+  id: string;
+  number: number;
+  ratePerHour: number;
+  isActive: boolean;
+  description?: string;
 }
 
 export interface MenuItem {
@@ -25,6 +31,7 @@ export interface MenuItem {
   price: number;
   category: 'food' | 'beverage';
   description?: string;
+  isAvailable: boolean;
 }
 
 export interface StaffMember {
@@ -32,7 +39,36 @@ export interface StaffMember {
   name: string;
   role: 'staff' | 'manager';
   pin: string;
-  clubId: string;
+  assignedClubs: string[]; // Array of club IDs
+  permissions: StaffPermissions;
+  createdAt: string;
+  isActive: boolean;
+}
+
+export interface StaffPermissions {
+  canCreateBookings: boolean;
+  canCancelBookings: boolean;
+  canManagePayments: boolean;
+  canViewReports: boolean;
+  canManageMenu: boolean;
+  canManageInventory: boolean;
+}
+
+export interface ClubSettings {
+  bookingSettings: {
+    advanceBookingDays: number;
+    cancellationPolicy: string;
+    requireDeposit: boolean;
+    depositAmount: number;
+    allowRecurringBookings: boolean;
+  };
+  operatingHours: {
+    [key: string]: { // day of week
+      isOpen: boolean;
+      openTime: string;
+      closeTime: string;
+    };
+  };
 }
 
 export interface ClubStats {
@@ -41,4 +77,6 @@ export interface ClubStats {
   totalPlayers: number;
   totalFoodOrders: number;
   outstandingPayments: number;
+  totalBookings: number;
+  occupancyRate: number;
 }

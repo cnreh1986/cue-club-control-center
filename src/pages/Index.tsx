@@ -1,215 +1,52 @@
-import React, { useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { DollarSign, Users, Calendar, TrendingUp } from 'lucide-react';
-import Navigation from '@/components/Navigation';
-import TableManagement from '@/components/TableManagement';
-import PlayerManagement from '@/components/PlayerManagement';
-import MenuManagement from '@/components/MenuManagement';
-import PaymentInterface from '@/components/PaymentInterface';
-import ExpenseTracker from '@/components/ExpenseTracker';
-import PlayerDashboard from '@/components/PlayerDashboard';
-import AdminSettings from '@/components/AdminSettings';
-import Reports from '@/components/Reports';
-import Inventory from '@/components/Inventory';
-import LoginScreen from '@/components/LoginScreen';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
+import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useClub } from '@/contexts/ClubContext';
-import { useParams } from 'react-router-dom';
+import LoginScreen from '@/components/LoginScreen';
+import Navigation from '@/components/Navigation';
+import Dashboard from '@/components/Dashboard';
+import Tables from '@/components/Tables';
+import Players from '@/components/Players';
+import Menu from '@/components/Menu';
+import Payments from '@/components/Payments';
+import Inventory from '@/components/Inventory';
+import Expenses from '@/components/Expenses';
+import Reports from '@/components/Reports';
+import AdminSettings from '@/components/AdminSettings';
+import MyWallet from '@/components/MyWallet';
+import PlayHistory from '@/components/PlayHistory';
+import FoodOrders from '@/components/FoodOrders';
+import ClubSelector from '@/components/ClubSelector';
+import MyBookings from '@/components/MyBookings';
+import ClubSelectionScreen from "@/components/ClubSelectionScreen";
 
 const Index = () => {
-  const { currentUser, isAuthenticated } = useAuth();
-  const { clubs, currentClub, setCurrentClub } = useClub();
-  const { clubId } = useParams();
-  const [activeTab, setActiveTab] = useLocalStorage('activeTab', 'dashboard');
-  
-  // Get club-specific data based on current club
-  const storageKey = currentClub ? `_${currentClub.id}` : '';
-  const [sessions] = useLocalStorage(`sessions${storageKey}`, []);
-  const [players] = useLocalStorage(`players${storageKey}`, []);
-  const [expenses] = useLocalStorage(`expenses${storageKey}`, []);
+  const { currentUser, isAuthenticated, needsClubSelection } = useAuth();
+  const [activeTab, setActiveTab] = useState('dashboard');
 
-  // Set current club based on URL parameter
-  useEffect(() => {
-    if (clubId && clubs.length > 0) {
-      const club = clubs.find(c => c.id === clubId);
-      if (club) {
-        setCurrentClub(club);
-      }
-    }
-  }, [clubId, clubs, setCurrentClub]);
-
-  // If not authenticated, show login screen
   if (!isAuthenticated) {
     return <LoginScreen />;
   }
 
-  // For owners without a selected club, redirect to owner dashboard
-  if (currentUser?.role === 'owner' && !currentClub) {
-    window.location.href = '/owner-dashboard';
-    return null;
+  // Show club selection if user needs to select a club
+  if (needsClubSelection) {
+    return <ClubSelectionScreen />;
   }
 
-  // For players, show their dashboard by default
-  if (currentUser?.role === 'player' && activeTab === 'dashboard') {
-    setActiveTab('my-wallet');
-  }
-
-  // Calculate stats for owner dashboard
-  const today = new Date().toDateString();
-  const todaySessions = sessions.filter((session: any) => 
-    new Date(session.startTime).toDateString() === today
-  );
-  
-  const todayRevenue = todaySessions.reduce((sum: number, session: any) => 
-    sum + (session.totalAmount || 0), 0
-  );
-  
-  const todayExpenses = expenses.filter((expense: any) => 
-    new Date(expense.date).toDateString() === today
-  ).reduce((sum: number, expense: any) => sum + expense.amount, 0);
-
-  const activeSessions = sessions.filter((session: any) => !session.endTime).length;
-
-  const renderActiveContent = () => {
+  const renderTabContent = () => {
     switch (activeTab) {
-      case 'dashboard':
-        return (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-green-800">Today's Revenue</CardTitle>
-                  <DollarSign className="h-4 w-4 text-green-600" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-green-900">₹{todayRevenue.toFixed(2)}</div>
-                  <p className="text-xs text-green-600 mt-1">From {todaySessions.length} sessions</p>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-blue-800">Active Sessions</CardTitle>
-                  <Calendar className="h-4 w-4 text-blue-600" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-blue-900">{activeSessions}</div>
-                  <p className="text-xs text-blue-600 mt-1">Currently playing</p>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-purple-800">Total Players</CardTitle>
-                  <Users className="h-4 w-4 text-purple-600" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-purple-900">{players.length}</div>
-                  <p className="text-xs text-purple-600 mt-1">Registered members</p>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-orange-800">Net Profit</CardTitle>
-                  <TrendingUp className="h-4 w-4 text-orange-600" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-orange-900">₹{(todayRevenue - todayExpenses).toFixed(2)}</div>
-                  <p className="text-xs text-orange-600 mt-1">Today's net earnings</p>
-                </CardContent>
-              </Card>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Recent Sessions</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {todaySessions.slice(0, 5).map((session: any, index: number) => (
-                      <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div>
-                          <p className="font-medium">Table {session.tableNumber}</p>
-                          <p className="text-sm text-gray-600">{session.playerName}</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-medium">₹{session.totalAmount || 0}</p>
-                          <Badge variant={session.endTime ? "secondary" : "default"}>
-                            {session.endTime ? "Completed" : "Active"}
-                          </Badge>
-                        </div>
-                      </div>
-                    ))}
-                    {todaySessions.length === 0 && (
-                      <p className="text-gray-500 text-center py-4">No sessions today</p>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Quick Actions</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 gap-3">
-                    <Button 
-                      onClick={() => setActiveTab('tables')}
-                      className="bg-green-600 hover:bg-green-700 text-white"
-                    >
-                      Start Session
-                    </Button>
-                    <Button 
-                      onClick={() => setActiveTab('players')}
-                      variant="outline"
-                    >
-                      Add Player
-                    </Button>
-                    <Button 
-                      onClick={() => setActiveTab('menu')}
-                      variant="outline"
-                    >
-                      Take Order
-                    </Button>
-                    <Button 
-                      onClick={() => setActiveTab('expenses')}
-                      variant="outline"
-                    >
-                      Add Expense
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        );
-      case 'tables':
-        return <TableManagement />;
-      case 'players':
-        return <PlayerManagement />;
-      case 'menu':
-        return <MenuManagement />;
-      case 'payments':
-        return <PaymentInterface />;
-      case 'expenses':
-        return <ExpenseTracker />;
-      case 'reports':
-        return <Reports />;
-      case 'admin-settings':
-        return <AdminSettings />;
-      case 'inventory':
-        return <Inventory />;
-      case 'my-wallet':
-      case 'play-history':
-      case 'food-orders':
-        return <PlayerDashboard />;
-      default:
-        return null;
+      case 'dashboard': return <Dashboard />;
+      case 'tables': return <Tables />;
+      case 'players': return <Players />;
+      case 'menu': return <Menu />;
+      case 'payments': return <Payments />;
+      case 'inventory': return <Inventory />;
+      case 'expenses': return <Expenses />;
+      case 'reports': return <Reports />;
+      case 'admin-settings': return <AdminSettings />;
+      case 'my-wallet': return <MyWallet />;
+      case 'play-history': return <PlayHistory />;
+      case 'food-orders': return <FoodOrders />;
+      case 'my-bookings': return <MyBookings />;
+      default: return <div>Tab content for {activeTab}</div>;
     }
   };
 
@@ -223,24 +60,25 @@ const Index = () => {
                 <span className="text-white font-bold text-sm">CT</span>
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-900">
-                  {currentClub ? currentClub.name : 'Cui Tip Snooker Club'}
-                </h1>
-                <p className="text-sm text-gray-500">Management System</p>
+                <h1 className="text-xl font-bold text-gray-900">Cui Tip Management</h1>
+                <p className="text-sm text-gray-500">Dashboard Overview</p>
               </div>
             </div>
-            <div className="text-right">
-              <p className="text-sm font-medium text-gray-900">{new Date().toLocaleDateString()}</p>
-              <p className="text-xs text-gray-500">{new Date().toLocaleTimeString()}</p>
-            </div>
+            <ClubSelector />
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <Navigation activeTab={activeTab} setActiveTab={setActiveTab} />
-        <div className="mt-6">
-          {renderActiveContent()}
+      <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="md:col-span-1">
+            <Navigation activeTab={activeTab} setActiveTab={setActiveTab} />
+          </div>
+          <div className="md:col-span-2">
+            <div className="min-h-[500px] bg-white rounded-lg shadow-sm border p-4">
+              {renderTabContent()}
+            </div>
+          </div>
         </div>
       </div>
     </div>

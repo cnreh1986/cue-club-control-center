@@ -1,6 +1,7 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { initializeDummyData } from '@/utils/initializeData';
 import LoginScreen from '@/components/LoginScreen';
 import Navigation from '@/components/Navigation';
 import Dashboard from '@/components/Dashboard';
@@ -23,6 +24,11 @@ import ClubSelectionScreen from "@/components/ClubSelectionScreen";
 const Index = () => {
   const { currentUser, isAuthenticated, needsClubSelection } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
+
+  // Initialize dummy data on app load
+  useEffect(() => {
+    initializeDummyData();
+  }, []);
 
   if (!isAuthenticated) {
     return <LoginScreen />;

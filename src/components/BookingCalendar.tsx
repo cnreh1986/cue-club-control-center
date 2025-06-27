@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useClub } from '@/contexts/ClubContext';
 import { useToast } from '@/hooks/use-toast';
 import { Booking } from '@/types/booking';
-import { CalendarDays, Clock, User, Table } from 'lucide-react';
+import { CalendarDays, Clock, User, Table, Plus } from 'lucide-react';
 
 const BookingCalendar = () => {
   const { selectedClub, getClubBookings, addBooking } = useClub();
@@ -27,7 +27,15 @@ const BookingCalendar = () => {
     notes: ''
   });
 
-  const bookings = selectedClub ? getClubBookings(selectedClub.id) : [];
+  if (!selectedClub) {
+    return (
+      <div className="text-center py-8 text-gray-500">
+        Please select a club to view bookings
+      </div>
+    );
+  }
+
+  const bookings = getClubBookings(selectedClub.id);
   const selectedDateBookings = selectedDate 
     ? bookings.filter(booking => 
         new Date(booking.startTime).toDateString() === selectedDate.toDateString()
@@ -35,10 +43,30 @@ const BookingCalendar = () => {
     : [];
 
   const handleCreateBooking = () => {
-    if (!selectedClub || !newBooking.tableId || !newBooking.playerName || !newBooking.startTime || !newBooking.endTime) {
+    if (!newBooking.tableId || !newBooking.playerName || !newBooking.startTime || !newBooking.endTime) {
       toast({
         title: "Error",
         description: "Please fill in all required fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Check for conflicts
+    const startTime = new Date(newBooking.startTime);
+    const endTime = new Date(newBooking.endTime);
+    
+    const hasConflict = bookings.some(booking => {
+      if (booking.tableId !== newBooking.tableId) return false;
+      const bookingStart = new Date(booking.startTime);
+      const bookingEnd = new Date(booking.endTime);
+      return (startTime < bookingEnd && endTime > bookingStart);
+    });
+
+    if (hasConflict) {
+      toast({
+        title: "Booking Conflict",
+        description: "This table is already booked during the selected time",
         variant: "destructive",
       });
       return;
@@ -89,22 +117,33 @@ const BookingCalendar = () => {
     }
   };
 
-  if (!selectedClub) {
-    return (
-      <div className="text-center py-8 text-gray-500">
-        Please select a club to view bookings
-      </div>
-    );
-  }
+  // Set default date and time for new bookings
+  const setDefaultDateTime = () => {
+    if (selectedDate) {
+      const tomorrow = new Date(selectedDate);
+      tomorrow.setHours(10, 0, 0, 0);
+      const endTime = new Date(tomorrow);
+      endTime.setHours(12, 0, 0, 0);
+      
+      setNewBooking(prev => ({
+        ...prev,
+        startTime: tomorrow.toISOString().slice(0, 16),
+        endTime: endTime.toISOString().slice(0, 16)
+      }));
+    }
+  };
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold mb-4">Booking Calendar</h2>
-        <Dialog open={showBookingForm} onOpenChange={setShowBookingForm}>
+        <h3 className="text-xl font-semibold">Booking Calendar</h3>
+        <Dialog open={showBookingForm} onOpenChange={(open) => {
+          setShowBookingForm(open);
+          if (open) setDefaultDateTime();
+        }}>
           <DialogTrigger asChild>
             <Button className="bg-green-600 hover:bg-green-700">
-              <CalendarDays className="w-4 h-4 mr-2" />
+              <Plus className="w-4 h-4 mr-2" />
               New Booking
             </Button>
           </DialogTrigger>
@@ -114,7 +153,7 @@ const BookingCalendar = () => {
             </DialogHeader>
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="table">Table</Label>
+                <Label htmlFor="table">Table *</Label>
                 <Select value={newBooking.tableId} onValueChange={(value) => setNewBooking({...newBooking, tableId: value})}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select a table" />
@@ -130,7 +169,7 @@ const BookingCalendar = () => {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="playerName">Player Name</Label>
+                <Label htmlFor="playerName">Player Name *</Label>
                 <Input
                   id="playerName"
                   value={newBooking.playerName}
@@ -150,7 +189,7 @@ const BookingCalendar = () => {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="startTime">Start Time</Label>
+                <Label htmlFor="startTime">Start Time *</Label>
                 <Input
                   id="startTime"
                   type="datetime-local"
@@ -160,7 +199,7 @@ const BookingCalendar = () => {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="endTime">End Time</Label>
+                <Label htmlFor="endTime">End Time *</Label>
                 <Input
                   id="endTime"
                   type="datetime-local"
@@ -232,10 +271,13 @@ const BookingCalendar = () => {
                       <div className="flex items-center">
                         <User className="w-4 h-4 mr-2" />
                         {booking.playerName}
+                        {booking.playerMobile && (
+                          <span className="ml-2 text-gray-500">({booking.playerMobile})</span>
+                        )}
                       </div>
                       <div className="flex items-center">
                         <Clock className="w-4 h-4 mr-2" />
-                        {new Date(booking.startTime).toLocaleTimeString()} - {new Date(booking.endTime).toLocaleTimeString()}
+                        {new Date(booking.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - {new Date(booking.endTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                       </div>
                       {booking.notes && (
                         <p className="text-gray-500 mt-2">{booking.notes}</p>

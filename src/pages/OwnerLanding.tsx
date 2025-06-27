@@ -3,13 +3,15 @@ import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useClub } from '@/contexts/ClubContext';
 import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { LogOut, User } from 'lucide-react';
 import LoginScreen from '@/components/LoginScreen';
 import OwnerDashboard from '@/components/OwnerDashboard';
 import { Club } from '@/types/club';
 
 const OwnerLanding = () => {
-  const { currentUser, isAuthenticated } = useAuth();
-  const { setCurrentClub } = useClub();
+  const { currentUser, isAuthenticated, logout } = useAuth();
+  const { setSelectedClub } = useClub();
   const navigate = useNavigate();
 
   if (!isAuthenticated) {
@@ -26,7 +28,7 @@ const OwnerLanding = () => {
   };
 
   const handleManageClub = (club: Club) => {
-    setCurrentClub(club);
+    setSelectedClub(club);
     navigate(`/club/${club.id}`);
   };
 
@@ -43,6 +45,22 @@ const OwnerLanding = () => {
                 <h1 className="text-xl font-bold text-gray-900">Cui Tip Management</h1>
                 <p className="text-sm text-gray-500">Owner Dashboard</p>
               </div>
+            </div>
+            
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <User className="w-4 h-4 text-gray-500" />
+                <span className="text-sm font-medium">{currentUser.name}</span>
+              </div>
+              <Button
+                onClick={logout}
+                variant="outline"
+                size="sm"
+                className="flex items-center space-x-2"
+              >
+                <LogOut className="h-4 w-4" />
+                <span>Logout</span>
+              </Button>
             </div>
           </div>
         </div>
